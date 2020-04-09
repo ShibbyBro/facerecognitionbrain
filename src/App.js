@@ -3,6 +3,7 @@ import Particles from "react-particles-js";
 import Clarifai from "clarifai";
 import FaceRecog from "./components/FaceRecog/FaceRecog";
 import Navigation from './components/Navigation/Navigation';
+import Signin from './components/Signin/Signin';
 import Logo from "./components/Logo/Logo";
 import ImageLinkForm from "./components/ImageLinkForm/ImageLinkForm";
 import Rank from "./components/Rank/Rank";
@@ -30,8 +31,27 @@ class App extends Component {
 
     this.state = {
       input: '',
-      imageUrl:''
+      imageUrl:'',
+      box: {},
     };
+  }
+
+  calculateFaceLocation = (data) => {
+    const clarifaiFace = data.outputs[0].data.regions[0].region_info.bounding_box;
+    const image = document.getElementById('inputimage');
+    const width = Number(image.width);
+    const height = Number(image.height);
+    return {
+      leftCol: clarifaiFace.left_col * width,
+      topRow: clarifaiFace.top_row * height,
+      rightCol: width - (clarifaiFace.right_col * width),
+      bottomRow: height - (clarifaiFace.bottom_row * height),
+    }
+  }
+
+  displayFaceBox = (box) => {
+    console.log(box);
+    this.setState({box : box});
   }
 
   onInputChange = (event) => {
@@ -44,22 +64,18 @@ class App extends Component {
       .predict(
         Clarifai.FACE_DETECT_MODEL,
         this.state.input)
-      .then(
-      function(response) {
-        console.log(response.outputs[0].data.regions[0].region_info.bounding_box);
-      },
-      function(err) {
-        // there was an error
-      }
-    );
+      .then(response => this.displayFaceBox(this.calculateFaceLocation(response)))
+      .catch(err => console.log(err));
   }
 
   render () {
     return (
       <div className="App">
-        <Particles className='particles'
+        <Particles 
+          className='particles'
           params={particlesOptions}
         />
+        <Signin />
         <Navigation />
         <Logo />
         <Rank />
@@ -68,7 +84,7 @@ class App extends Component {
           onButtonSubmit={this.onButtonSubmit}/>
         {/* need to trigger these above onInputChange with a call in ImageLinkForm.css*/}
         
-        <FaceRecog imageUrl={this.state.imageUrl} />
+        <FaceRecog box={this.state.box} imageUrl={this.state.imageUrl} />
 
       </div>
     );
