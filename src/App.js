@@ -4,6 +4,7 @@ import Clarifai from "clarifai";
 import FaceRecog from "./components/FaceRecog/FaceRecog";
 import Navigation from './components/Navigation/Navigation';
 import Signin from './components/Signin/Signin';
+import Register from './components/Register/Register';
 import Logo from "./components/Logo/Logo";
 import ImageLinkForm from "./components/ImageLinkForm/ImageLinkForm";
 import Rank from "./components/Rank/Rank";
@@ -33,7 +34,8 @@ class App extends Component {
       input: '',
       imageUrl:'',
       box: {},
-      route: 'signin'
+      route: 'signin',
+      isSignedIn: false
     };
   }
 
@@ -51,7 +53,6 @@ class App extends Component {
   }
 
   displayFaceBox = (box) => {
-    console.log(box);
     this.setState({box : box});
   }
 
@@ -70,21 +71,27 @@ class App extends Component {
   }
 
   onRouteChange = (route) => {
+    if (route === 'signout') {
+      this.setState({isSignedIn: false})
+    } else if (route === 'home') {
+      this.setState({isSignedIn: true})
+    }
     this.setState({route: route});
   }
 
   render () {
+    /* using this.state alot just put it all on top with props */
+    const { isSignedIn, imageUrl, route, box } = this.state;
     return (
       <div className="App">
         <Particles 
           className='particles'
           params={particlesOptions}
         />
-        <Navigation onRouteChange={this.onRouteChange} />
+        <Navigation isSignedIn={isSignedIn} onRouteChange={this.onRouteChange} />
         {/* sets up a route to only show the signin until the user has signed in. */}
-        { this.state.route === 'signin' 
-          ? <Signin onRouteChange={this.onRouteChange} />
-          : <div>
+        { route === 'home' 
+          ? <div>
               <Logo />
               <Rank />
               <ImageLinkForm 
@@ -92,8 +99,13 @@ class App extends Component {
                 onButtonSubmit={this.onButtonSubmit}/>
               {/* need to trigger these above onInputChange with a call in ImageLinkForm.css*/}
               
-              <FaceRecog box={this.state.box} imageUrl={this.state.imageUrl} />
+              <FaceRecog box={box} imageUrl={imageUrl} />
             </div>
+          : (
+              route === 'signin'
+              ? <Signin onRouteChange={this.onRouteChange} />
+              : <Register onRouteChange={this.onRouteChange} />
+            )
         }
       </div>
     );
