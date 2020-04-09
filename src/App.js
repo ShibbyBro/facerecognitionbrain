@@ -33,6 +33,7 @@ class App extends Component {
       input: '',
       imageUrl:'',
       box: {},
+      route: 'signin'
     };
   }
 
@@ -68,6 +69,10 @@ class App extends Component {
       .catch(err => console.log(err));
   }
 
+  onRouteChange = (route) => {
+    this.setState({route: route});
+  }
+
   render () {
     return (
       <div className="App">
@@ -75,17 +80,21 @@ class App extends Component {
           className='particles'
           params={particlesOptions}
         />
-        <Signin />
-        <Navigation />
-        <Logo />
-        <Rank />
-        <ImageLinkForm 
-          onInputChange={this.onInputChange} 
-          onButtonSubmit={this.onButtonSubmit}/>
-        {/* need to trigger these above onInputChange with a call in ImageLinkForm.css*/}
-        
-        <FaceRecog box={this.state.box} imageUrl={this.state.imageUrl} />
-
+        <Navigation onRouteChange={this.onRouteChange} />
+        {/* sets up a route to only show the signin until the user has signed in. */}
+        { this.state.route === 'signin' 
+          ? <Signin onRouteChange={this.onRouteChange} />
+          : <div>
+              <Logo />
+              <Rank />
+              <ImageLinkForm 
+                onInputChange={this.onInputChange} 
+                onButtonSubmit={this.onButtonSubmit}/>
+              {/* need to trigger these above onInputChange with a call in ImageLinkForm.css*/}
+              
+              <FaceRecog box={this.state.box} imageUrl={this.state.imageUrl} />
+            </div>
+        }
       </div>
     );
   }
