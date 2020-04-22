@@ -1,0 +1,8 @@
+{
+  "editor.tabSize": 2,
+  "editor.detectIndentation": false,
+  "editor.wordWrap": "on",
+  "editor.formatOnPaste": true,
+  "sync.autoUpload": true,
+  "git.showPushSuccessNotification": true
+}
